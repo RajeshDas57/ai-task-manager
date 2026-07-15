@@ -26,7 +26,9 @@ function taskManager(){
         search:'',
         
         filter:'All',
-
+        
+        darkMode: false,
+        
         title:'',
 
         description:'',
@@ -299,10 +301,42 @@ function taskManager(){
     </div>
 
 </div>
+<div class="bg-white shadow rounded-xl p-6 mb-8">
 
+    <div class="flex justify-between mb-2">
+
+        <span class="font-semibold">
+            Progress
+        </span>
+<span class="text-gray-600 text-sm"
+      x-text="tasks.filter(t=>t.is_completed).length + ' of ' + tasks.length + ' Tasks Completed'">
+</span>
+        <span
+            x-text="tasks.length
+            ? Math.round((tasks.filter(t=>t.is_completed).length/tasks.length)*100)
+            : 0">
+
+        </span>%
+
+    </div>
+
+    <div class="w-full bg-gray-200 rounded-full h-4">
+
+        <div
+            class="bg-green-500 h-4 rounded-full transition-all duration-500"
+            :style="'width:' + (tasks.length
+            ? Math.round((tasks.filter(t=>t.is_completed).length/tasks.length)*100)
+            : 0) + '%'">
+
+        </div>
+
+    </div>
+
+</div>
 <!-- Add Task -->
 
 <div class="bg-white rounded-xl shadow p-6 mb-8">
+
 
     <h2 class="text-2xl font-bold mb-4"
         x-text="editId ? 'Edit Task' : 'Add New Task'">
@@ -375,6 +409,31 @@ function taskManager(){
 <!-- Search -->
 
 <div class="bg-white rounded-xl shadow p-6 mb-8">
+
+<div class="grid md:grid-cols-3 gap-4 mb-5">
+
+    <div class="bg-red-100 text-red-700 rounded-lg p-4 text-center">
+        <h3 class="font-bold">🔴 Overdue</h3>
+        <p class="text-2xl font-bold"
+           x-text="tasks.filter(t => t.due_date && t.due_date < new Date().toISOString().split('T')[0] && !t.is_completed).length">
+        </p>
+    </div>
+
+    <div class="bg-yellow-100 text-yellow-700 rounded-lg p-4 text-center">
+        <h3 class="font-bold">🟡 Due Today</h3>
+        <p class="text-2xl font-bold"
+           x-text="tasks.filter(t => t.due_date == new Date().toISOString().split('T')[0] && !t.is_completed).length">
+        </p>
+    </div>
+
+    <div class="bg-green-100 text-green-700 rounded-lg p-4 text-center">
+        <h3 class="font-bold">🟢 Upcoming</h3>
+        <p class="text-2xl font-bold"
+           x-text="tasks.filter(t => t.due_date > new Date().toISOString().split('T')[0] && !t.is_completed).length">
+        </p>
+    </div>
+
+</div>
 
     <input
         x-model="search"
@@ -468,6 +527,7 @@ function taskManager(){
                     class="text-gray-600 mt-2"
                     x-text="task.description">
                 </p>
+                
 
                 <div class="flex gap-2 mt-3">
 
@@ -481,14 +541,20 @@ function taskManager(){
                         x-text="task.priority">
                     </span>
 
-                    <span
-                        x-show="task.due_date"
-                        class="bg-gray-200 px-3 py-1 rounded text-sm">
+      <span
+    x-show="task.due_date"
+    class="px-3 py-1 rounded text-sm"
+    :class="(
+        task.due_date < new Date().toISOString().split('T')[0] &&
+        !task.is_completed
+    )
+    ? 'bg-red-500 text-white'
+    : 'bg-gray-200 text-black'">
 
-                        📅
-                        <span x-text="task.due_date ? task.due_date.substring(0,10) : ''"></span>
+    📅
+    <span x-text="task.due_date"></span>
 
-                    </span>
+</span>
 
                 </div>
 

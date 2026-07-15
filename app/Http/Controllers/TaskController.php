@@ -15,14 +15,36 @@ class TaskController extends Controller
     }
 
 
-    // সব task JSON দিবে
     public function apiIndex()
-    {
-        return response()->json(
-            Task::latest()->get()
-        );
-    }
+{
+    $tasks = Task::latest()->get()->map(function ($task) {
 
+        return [
+
+            'id' => $task->id,
+
+            'title' => $task->title,
+
+            'description' => $task->description,
+
+            'priority' => $task->priority,
+
+            'due_date' => $task->due_date
+                ? $task->due_date->format('Y-m-d')
+                : null,
+
+            'is_completed' => $task->is_completed,
+
+            'created_at' => $task->created_at,
+
+            'updated_at' => $task->updated_at,
+
+        ];
+
+    });
+
+    return response()->json($tasks);
+}
 
     // Add Task
     public function store(Request $request)
