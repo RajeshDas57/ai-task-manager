@@ -27,8 +27,7 @@ function taskManager(){
         
         filter:'All',
         
-        darkMode: false,
-        
+      darkMode: localStorage.getItem('theme') === 'dark',
         title:'',
 
         description:'',
@@ -274,11 +273,17 @@ function taskManager(){
 
 </script>
 
-<h1 class="text-4xl font-bold text-center mb-8">
+<div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 rounded-2xl p-8 text-center text-white shadow-xl mb-8">
 
-    🤖 AI Task Manager
+    <h1 class="text-5xl font-bold">
+        🤖 AI Task Manager
+    </h1>
 
-</h1>
+    <p class="mt-3 text-lg opacity-90">
+        Organize your work smarter with AI
+    </p>
+
+</div>
 <!-- Statistics -->
 
 <div class="grid grid-cols-3 gap-4 mb-8">
@@ -350,9 +355,14 @@ function taskManager(){
             class="border rounded-lg p-3">
 
         <input
-            x-model="description"
-            placeholder="Description"
-            class="border rounded-lg p-3">
+    x-model="search"
+    type="text"
+    placeholder="🔍 Search Task..."
+    class="w-full border border-gray-300 rounded-lg p-3
+           focus:ring-4 focus:ring-blue-200
+           focus:border-blue-500
+           outline-none
+           transition-all duration-300">
 
         <select
             x-model="priority"
@@ -373,20 +383,21 @@ function taskManager(){
 
     <div class="flex gap-3 mt-5">
 
-        <button
-            @click="addTask()"
-            class="bg-blue-600 text-white px-5 py-3 rounded-lg">
+     <button
+    @click="addTask()"
+    class="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-300 text-white px-5 py-3 rounded-lg">
 
-            <span x-text="editId ? 'Update Task' : 'Add Task'"></span>
+    <span x-text="editId ? 'Update Task' : 'Add Task'"></span>
 
-        </button>
+</button>
 
-        <button
-            @click="aiSuggest()"
-            class="bg-purple-600 text-white px-5 py-3 rounded-lg">
+       <button
+    @click="aiSuggest()"
+    class="bg-purple-600 hover:bg-purple-700 hover:scale-105 transition-all duration-300 text-white px-5 py-3 rounded-lg">
 
-            AI Suggest
+    AI Suggest
 
+</button>
         </button>
 
     </div>
@@ -442,24 +453,31 @@ function taskManager(){
         class="w-full border rounded-lg p-3">
 <div class="flex gap-3 mt-4">
 
-    <button
-        @click="filter='All'"
-        class="px-4 py-2 rounded bg-gray-600 text-white">
-        All
-    </button>
+ <button
+    @click="filter='All'"
+    :class="filter=='All'
+        ? 'bg-blue-600 text-white'
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+    class="px-4 py-2 rounded-lg transition-all duration-300">
+    All
+</button>
+<button
+    @click="filter='Pending'"
+    :class="filter=='Pending'
+        ? 'bg-red-600 text-white'
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+    class="px-4 py-2 rounded-lg transition-all duration-300">
+    Pending
+</button>
 
     <button
-        @click="filter='Pending'"
-        class="px-4 py-2 rounded bg-red-600 text-white">
-        Pending
-    </button>
-
-    <button
-        @click="filter='Completed'"
-        class="px-4 py-2 rounded bg-green-600 text-white">
-        Completed
-    </button>
-
+    @click="filter='Completed'"
+    :class="filter=='Completed'
+        ? 'bg-green-600 text-white'
+        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+    class="px-4 py-2 rounded-lg transition-all duration-300">
+    Completed
+</button>
 </div>
 </div>
 <!-- Task List -->
@@ -509,90 +527,91 @@ function taskManager(){
         )
 
     )"
-    :key="task.id">
+   :key="task.id">
 
-        <div class="border rounded-xl p-5 mb-4 flex justify-between items-start">
+<div class="border rounded-xl p-5 mb-4 flex justify-between items-start shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-white">
 
-            <div>
+    <!-- Left Side -->
+    <div>
 
-                <h3
-                    class="text-xl font-bold"
-                    :class="{
-                        'line-through text-gray-400': task.is_completed
-                    }"
-                    x-text="task.title">
-                </h3>
+        <h3
+            class="text-xl font-bold"
+            :class="{
+                'line-through text-gray-400': task.is_completed
+            }"
+            x-text="task.title">
+        </h3>
 
-                <p
-                    class="text-gray-600 mt-2"
-                    x-text="task.description">
-                </p>
-                
+        <p
+            class="text-gray-600 mt-2"
+            x-text="task.description">
+        </p>
 
-                <div class="flex gap-2 mt-3">
+        <div class="flex gap-2 mt-3">
 
-                    <span
-                        class="px-3 py-1 rounded text-white text-sm"
-                        :class="{
-                            'bg-red-500': task.priority=='High',
-                            'bg-yellow-500': task.priority=='Medium',
-                            'bg-green-500': task.priority=='Low'
-                        }"
-                        x-text="task.priority">
-                    </span>
+            <span
+                class="px-3 py-1 rounded text-white text-sm"
+                :class="{
+                    'bg-red-500': task.priority=='High',
+                    'bg-yellow-500': task.priority=='Medium',
+                    'bg-green-500': task.priority=='Low'
+                }"
+                x-text="task.priority">
+            </span>
 
-      <span
-    x-show="task.due_date"
-    class="px-3 py-1 rounded text-sm"
-    :class="(
-        task.due_date < new Date().toISOString().split('T')[0] &&
-        !task.is_completed
-    )
-    ? 'bg-red-500 text-white'
-    : 'bg-gray-200 text-black'">
+            <span
+                x-show="task.due_date"
+                class="px-3 py-1 rounded text-sm"
+                :class="(
+                    task.due_date < new Date().toISOString().split('T')[0] &&
+                    !task.is_completed
+                )
+                ? 'bg-red-500 text-white'
+                : 'bg-gray-200 text-black'">
 
-    📅
-    <span x-text="task.due_date"></span>
+                📅
+                <span x-text="task.due_date"></span>
 
-</span>
-
-                </div>
-
-            </div>
-
-            <div class="flex gap-2">
-
-                <button
-                    @click="toggleTask(task.id)"
-                    class="bg-green-600 text-white px-4 py-2 rounded">
-
-                    <span
-                        x-text="task.is_completed ? 'Undo' : 'Complete'">
-                    </span>
-
-                </button>
-
-                <button
-                    @click="editTask(task)"
-                    class="bg-yellow-500 text-white px-4 py-2 rounded">
-
-                    Edit
-
-                </button>
-
-                <button
-                    @click="deleteTask(task.id)"
-                    class="bg-red-600 text-white px-4 py-2 rounded">
-
-                    Delete
-
-                </button>
-
-            </div>
+            </span>
 
         </div>
 
-    </template>
+    </div>
+
+    <!-- Right Side -->
+    <div class="flex gap-2">
+
+        <button
+            @click="toggleTask(task.id)"
+            class="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-300 text-white px-4 py-2 rounded">
+
+            <span
+                x-text="task.is_completed ? 'Undo' : 'Complete'">
+            </span>
+
+        </button>
+
+        <button
+            @click="editTask(task)"
+            class="bg-yellow-500 hover:bg-yellow-600 hover:scale-105 transition-all duration-300 text-white px-4 py-2 rounded">
+
+            Edit
+
+        </button>
+
+        <button
+            @click="deleteTask(task.id)"
+            class="bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-300 text-white px-4 py-2 rounded">
+
+            Delete
+
+        </button>
+
+    </div>
+
+</div>
+
+</template>
 
 </div>
 
